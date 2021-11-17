@@ -54,7 +54,7 @@ namespace ConsoleApp
                     threadNum = 5;
                 }
             }
-
+            //TODO: 需要根据方法名自动实例化对应的IMerge(if语句？ 还是使用Composition)
             EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
             List<TreeNode> nodes = merger.BuildTrees();
             CancellationTokenSource cs = new CancellationTokenSource();

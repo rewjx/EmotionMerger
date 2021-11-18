@@ -9,6 +9,7 @@ using Merger.core.TreeScheduler;
 using System.Threading;
 using ImageOP;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace ConsoleApp
 {
@@ -55,13 +56,19 @@ namespace ConsoleApp
                 }
             }
             //TODO: 需要根据方法名自动实例化对应的IMerge(if语句？ 还是使用Composition)
+
+            //1610张图片，3.5GB，3线程节能大约100s，5线程平衡大约50s，平衡模式5线程基本占满cpu，因此10线程速度基本不变
             EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
             List<TreeNode> nodes = merger.BuildTrees();
             CancellationTokenSource cs = new CancellationTokenSource();
             TreeScheduler pro = new TreeScheduler(nodes, (IMerge)merger, merger.GetDefaultOffseter(),
                 new Progress<int>(), cs.Token, maxTaskCount:threadNum);
-            Console.WriteLine("总数量: " + pro.GetProbTotalCount());
+            Console.WriteLine("total picture count: " + pro.GetProbTotalCount());
+            Stopwatch s = new Stopwatch();
+            s.Start();
             pro.Run().Wait();
+            s.Stop();
+            Console.WriteLine("used " + s.ElapsedMilliseconds.ToString() + "ms");
             return true;
         }
 

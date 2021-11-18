@@ -109,6 +109,7 @@ namespace Merger.core.TreeScheduler
                 {
                     continuousTimes = 0;
                     ExecuteNode(node).Wait();
+                    //await ExecuteNode(node);
                     node.Dispose();
                 }
                 else
@@ -118,7 +119,7 @@ namespace Merger.core.TreeScheduler
                     {
                         break;
                     }
-                    Thread.Sleep(500);
+                    Thread.Sleep(300);
                 }
 
             }
@@ -127,65 +128,78 @@ namespace Merger.core.TreeScheduler
 
         public async Task ExecuteNode(TreeNode node)
         {
-            Bitmap img = DoMerge(node);
+            //无视该属性，取消注释也会因为图片命名问题造成同名文件覆盖，不考虑修复该问题
+            //if(node.canIgnore)
+            //{
+            //    Pass2ChildNodes(node, node.parentImg).Wait();
+            //}
+            Bitmap img = await DoMerge(node);
             try
             {
-                //叶子节点，代表一张图片合成完毕，保存图片
-                if (node.childs == null || node.childs.Count == 0)
-                {
-                    if (!merger.SaveImage(ref img, node.SaveName))
-                    {
-                        throw new Exception("图片保存失败");
-                    }
-                    progress.Report(1);
-                }
-                //非叶子节点，还需继续合成
-                else
-                {
-                    int childIdx = 0;
-                    while(childIdx < node.childs.Count)
-                    {
-                        if(cancelToken.IsCancellationRequested)
-                        {
-                            return;
-                        }
-                        //如果请求了往队列中添加任务，则把该节点的部分子任务加到队列中
-                        if(requestEnqueue)
-                        {
-                            while(childIdx < node.childs.Count - 1)
-                            {
-                                Bitmap copyImg = ImageFunc.DeepCopyImage(img);
-                                TreeNode sonNode = node.childs[childIdx];
-                                sonNode.SetParentImg(copyImg);
-                                if(!tasksQueue.Enqueue(sonNode))
-                                {
-                                    break;
-                                }
-                                childIdx += 1;
-                            }
-                            requestEnqueue = false;
-                            continue;
-                        }
-                        node.childs[childIdx].SetParentImg(img);
-                        ExecuteNode(node.childs[childIdx]).Wait();
-                        childIdx += 1;
-                    }
-                }
+                Pass2ChildNodes(node, img).Wait();
             }
             finally
             {
                 if(img != null)
                 {
                     img.Dispose();
-                    img = null;
                 }
             }
         }
 
+        //是否异步读写图片对性能基本无影响
 
-        public Bitmap DoMerge(TreeNode node)
+        private async Task Pass2ChildNodes(TreeNode node, Bitmap img)
         {
-            Bitmap subImg = merger.ReadImage(node.FileName);
+            //叶子节点，代表一张图片合成完毕，保存图片
+            if (node.childs == null || node.childs.Count == 0)
+            {
+                bool isSuccess = await Task.Run(() => merger.SaveImage(ref img, node.SaveName));
+                if (false == isSuccess)
+                {
+                    throw new Exception("图片保存失败");
+                }
+                progress.Report(1);
+            }
+            //非叶子节点，还需继续合成
+            else
+            {
+                int childIdx = 0;
+                while (childIdx < node.childs.Count)
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    //如果请求了往队列中添加任务，则把该节点的部分子任务加到队列中
+                    if (requestEnqueue)
+                    {
+                        while (childIdx < node.childs.Count - 1)
+                        {
+                            Bitmap copyImg = ImageFunc.DeepCopyImage(img);
+                            TreeNode sonNode = node.childs[childIdx];
+                            sonNode.SetParentImg(copyImg);
+                            if (!tasksQueue.Enqueue(sonNode))
+                            {
+                                break;
+                            }
+                            childIdx += 1;
+                        }
+                        requestEnqueue = false;
+                        continue;
+                    }
+                    node.childs[childIdx].SetParentImg(img);
+                    ExecuteNode(node.childs[childIdx]).Wait();
+                    childIdx += 1;
+                }
+            }
+
+        }
+
+        public async Task<Bitmap> DoMerge(TreeNode node)
+        {
+            Task<Bitmap> readTask = Task.Run(()=> merger.ReadImage(node.FileName));
+            Bitmap subImg = await readTask;
             merger.PreProcessImage(ref subImg);
             Tuple<int, int> offset = calc.GetOffset(node.mainImgName, node.FileName);    
             Bitmap result = merger.MergeProcess(ref node.parentImg, ref subImg, offset);
@@ -194,7 +208,6 @@ namespace Merger.core.TreeScheduler
                 subImg.Dispose();
             return result;
             
-
         }
 
     }

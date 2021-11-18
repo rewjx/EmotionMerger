@@ -79,9 +79,9 @@ namespace Merger.Escude
                         validPics.Add(smallg);
                     }
                 }
-
-                List<TreeNode> parts = base.BuildTrees(validPics);
-                if(parts != null)
+                BuildTreeHelper helper = new BuildTreeHelper();
+                List<TreeNode> parts = helper.BuildTrees(validPics, new HashSet<int>());
+                if (parts != null)
                     nodes.AddRange(parts);
             }
             return nodes;

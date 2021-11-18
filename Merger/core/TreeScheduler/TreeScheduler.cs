@@ -8,6 +8,24 @@ using System.Drawing;
 
 namespace Merger.core.TreeScheduler
 {
+    /*
+    /// 优点：
+    /// 树状结构能够充分利用共同路径来提高性能。
+    /// 如合成a->b->c, a->b->d两张图片，组织成树后，a->b这一步无需重复合成。
+    /// 如果采用单独的每一张图片进行合成的方式，a->b这一步需要重复合成多次。
+    /// 缺点：
+    /// 1. 并行化处理较麻烦
+    /// 2. 该方式很难处理某些图片组可忽略的情况
+    /// a. 若某节点的子叶子节点都可忽略，则会重复生成图片，带来性能损失
+    /// b. 若到叶子节点再保存图片，则还需保存合成路径，才能辨别为不同图片，给与不同命名。除非利用随机数或时间等命名。
+    /// 且只在立绘中会出现某些图片组可有可无(如脸上红晕，眼镜等装饰品)，cg中一般不会出现
+    /// 因此暂不支持这种图片组的自动忽略，采用树状结构，将会忽视canIgnore属性。
+    */
+
+    /// <summary>
+    /// 图片合成树的执行
+    /// 会无视canIgnore属性,凡是树中节点都会参与合成
+    /// </summary>
     public sealed class TreeScheduler
     {
 
@@ -39,6 +57,10 @@ namespace Merger.core.TreeScheduler
             IProgress<int>progress,  CancellationToken token,
             int maxTaskCount=5, int maxQueueLen=10)
         {
+            if (maxTaskCount <= 0)
+                maxTaskCount = Environment.ProcessorCount;
+            maxTaskCount = Math.Min(maxTaskCount, Environment.ProcessorCount);
+            maxQueueLen = Math.Max(maxQueueLen, maxTaskCount + 2);
             this.tasksQueue = new TaskQueue(maxQueueLen);
             taskRoots = taskForests;
             this.maxTaskCount = maxTaskCount;
@@ -62,7 +84,7 @@ namespace Merger.core.TreeScheduler
             int count = 0;
             foreach (TreeNode node in taskRoots)
             {
-                foreach (var item in node.DFSStepTree())
+                foreach (var item in node.DFSStepTree(false))
                 {
                     count += 1;
                 }

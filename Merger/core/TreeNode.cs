@@ -107,19 +107,24 @@ namespace Merger.core
         /// 深度优先的方式进行树的遍历，返回到叶子节点路径的迭代器
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<List<string>> DFSStepTree()
+        public IEnumerable<List<string>> DFSStepTree(bool useIgnore=true)
         {
+            //叶子节点
             if (this.childs == null || this.childs.Count == 0)
             {
+                if(canIgnore && useIgnore)
+                {
+                    yield return new List<string>();
+                }
                 yield return new List<string> { this.FileName };
             }
             else
             {
                 foreach (TreeNode c in this.childs)
                 {
-                    foreach (var path in c.DFSStepTree())
+                    foreach (var path in c.DFSStepTree(useIgnore))
                     {
-                        if (canIgnore)
+                        if (canIgnore && useIgnore)
                         {
                             yield return path;
                         }

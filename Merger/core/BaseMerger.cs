@@ -4,138 +4,87 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
-using ImageOP;
-using System.IO;
-using Common;
-using System.ComponentModel.Composition;
 
 namespace Merger.core
 {
     /// <summary>
-    /// 最基础的0偏移的合成方式
+    /// 所有图像合成类的基类
     /// </summary>
-   [Export((typeof(IMerge)))]
-    public class BaseMerger:IMerge
+    public abstract class BaseMerger : IMerge
     {
-        public virtual string MethodName { get { return MergeMethodName.BasicMethod; } }
+        public abstract string MethodName { get; }
+
+        public abstract Bitmap MergeProcess(ref Bitmap mainImg, ref Bitmap subImg, Tuple<int, int> offset);
+        public abstract void PostProcess(ref Bitmap Image);
+        public abstract void PreProcessImage(ref Bitmap image);
+        public abstract Bitmap ReadImage(string fileName);
+        public abstract bool SaveImage(ref Bitmap img, string saveName);
 
         /// <summary>
-        /// 待合成图片的文件夹路径
-        /// </summary>
-        protected string picPath;
-
-        /// <summary>
-        /// 图像格式
-        /// </summary>
-        protected string picFormat;
-
-        /// <summary>
-        /// 合成后保存路径
-        /// </summary>
-        protected string savePath;
-
-        /// <summary>
-        /// 合成后保存图片格式
-        /// </summary>
-        protected string saveFormat;
-
-        protected List<TreeNode> taskNodes;
-
-        public BaseMerger(string picpath, string savePath, string saveFormat=ImageNames.PNG)
-        {
-            this.picPath = picpath;
-            this.savePath = savePath;
-            this.saveFormat = saveFormat;
-
-        }
-
-        public virtual Bitmap ReadImage(string name)
-        {
-            string fullPath = Path.Combine(this.picPath, name);
-            Bitmap img = ImageIO.ReadImage(fullPath);
-            return img;
-        }
-
-        public virtual void PreProcessImage(ref Bitmap img)
-        {
-
-        }
-
-        public virtual Bitmap MergeProcess(ref Bitmap mainImg, ref Bitmap subImg, Tuple<int, int> offset)
-        {
-            Bitmap rtn = ImageFunc.ImageBlend(mainImg, subImg, new AlphaBlend(), offset.Item1, offset.Item2);
-            return rtn;
-        }
-
-        public virtual void PostProcess(ref Bitmap Image)
-        {
-
-        }
-
-        public virtual bool SaveImage(ref Bitmap img, string saveName)
-        {
-            if (img == null)
-                return true;
-            string fullName = saveName + "." + saveFormat;
-            string fullPath = Path.Combine(savePath, fullName);
-            return ImageIO.SaveImage(img, fullPath, saveFormat);
-
-        }
-
-        /// <summary>
-        /// 获取该方式默认的偏移坐标计算方式
+        /// 获取图片合成树状依赖
         /// </summary>
         /// <returns></returns>
-        public virtual IGetOffset GetDefaultOffseter()
-        {
-            return new ZeroOffseter();
-        }
+        public abstract List<TreeNode> GetTreeNodes();
 
-        public virtual List<TreeNode> BuildTrees(List<List<string>> picGroups = null)
-        {
-            BuildTreeHelper helper = new BuildTreeHelper();
-            return helper.BuildTrees(picGroups, new HashSet<int>());
-        }
+        /// <summary>
+        /// 获取单条规则形式的合成依赖
+        /// </summary>
+        /// <returns></returns>
+        public abstract List<PicRuleItem> GetPicturesRules();
 
-        public virtual List<TreeNode> GetTreeNodes()
-        {
-            return this.taskNodes;
-        }
+        /// <summary>
+        /// 直接外部设置图片规则
+        /// </summary>
+        /// <param name="items"></param>
+        public abstract void SetPicturesRules(List<PicRuleItem> items);
 
+        /// <summary>
+        /// 直接设置图片分组，并以据分组自动构建图片合成树
+        /// </summary>
+        /// <param name="groups"></param>
+        public abstract void SetPicturesGroups(List<List<string>> groups);
+
+        /// <summary>
+        /// 设置偏移计算方式
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public abstract bool SetOffseter(IGetOffset func);
+       
+        /// <summary>
+        /// 获取默认的偏移计算方式
+        /// </summary>
+        /// <returns></returns>
+        public abstract IGetOffset GetDefaultOffseter();
+
+        /// <summary>
+        /// 返回偏移计算方式
+        /// </summary>
+        /// <returns></returns>
+        public abstract IGetOffset GetOffseter();
 
     }
 
-    [Export(typeof(IGetOffset))]
-    public class FixedOffseter : IGetOffset
+
+    public class PicRuleItem
     {
-        public virtual string MethodName { get { return OffsetMethodName.FixedOffsetName; } }
+        /// <summary>
+        /// 合成一张图片所需的全部图片名
+        /// </summary>
+        public List<string> PicRules { get; set; }
 
-        private int xoff = 0;
+        /// <summary>
+        /// 合成后图片保存名字
+        /// </summary>
+        public string SaveName { get; set; }
 
-        private int yoff = 0;
 
-        public FixedOffseter(int x, int y)
+        public PicRuleItem() { }
+
+        public PicRuleItem(List<string> picnames, string savename)
         {
-            xoff = x;
-            yoff = y;
-        }
-
-        public virtual Tuple<int, int> GetOffset(string mainPicName, string subPicName)
-        {
-            return new Tuple<int, int>(xoff, yoff);
-        }
-
-    }
-
-    [Export(typeof(IGetOffset))]
-    public class ZeroOffseter : IGetOffset
-    {
-        public virtual string MethodName { get { return OffsetMethodName.ZeroOffsetName; } }
-
-
-        public virtual Tuple<int, int> GetOffset(string mainPicName, string subPicName)
-        {
-            return new Tuple<int, int>(0, 0);
+            this.PicRules = picnames;
+            this.SaveName = savename;
         }
     }
 

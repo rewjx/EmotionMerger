@@ -12,8 +12,8 @@ using System.ComponentModel.Composition;
 
 namespace Merger.Escude
 {
-    [Export((typeof(IMerge)))]
-    public class EscudeMerger: BaseMerger
+    [Export((typeof(BaseMerger)))]
+    public class EscudeMerger: BasicMerger
     {
         public override string MethodName { get { return MergeMethodName.EscudeMethod; } }
 
@@ -24,13 +24,33 @@ namespace Merger.Escude
 
         private Dictionary<string, Tuple<int, int>> offsets;
 
+        public EscudeMerger()
+        {
+
+        }
+
         public EscudeMerger(string picpath, string offsetPath, string savePath, string saveFormat = ImageNames.PNG)
             :base(picpath, savePath, saveFormat)
         {
             this.OffsetFilePath = offsetPath;
             picFormat = "png";
         }
-        
+
+        public override void SetInitializeParameter(string picpath, string savePath,
+            string saveFormat = "PNG", string offsetPath = null)
+        {
+            base.SetInitializeParameter(picpath, savePath, saveFormat, offsetPath);
+            if(string.IsNullOrWhiteSpace(offsetPath))
+            {
+                this.OffsetFilePath = picpath;
+            }
+            else
+            {
+                this.OffsetFilePath = offsetPath;
+            }
+            picFormat = "png";
+        }
+
         private HashSet<string> GetAllFileName()
         {
             HashSet<string> fileNames = new HashSet<string>();
@@ -84,7 +104,8 @@ namespace Merger.Escude
                 if (parts != null)
                     nodes.AddRange(parts);
             }
-            return nodes;
+            picNodes = nodes;
+            return picNodes;
         }
 
         public override IGetOffset GetDefaultOffseter()

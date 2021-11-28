@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 using Merger.Escude;
 using Merger.core;
 using Merger.core.TreeScheduler;
+using Merger;
 using System.Threading;
 using ImageOP;
 using System.Drawing;
 using System.Diagnostics;
+using Common;
+using Merger.Tmr_Hiro;
 
 namespace ConsoleApp
 {
@@ -58,7 +61,14 @@ namespace ConsoleApp
             //TODO: 需要根据方法名自动实例化对应的IMerge(if语句？ 还是使用Composition)
 
             //1610张图片，3.5GB，3线程节能大约100s，5线程平衡大约50s，平衡模式5线程基本占满cpu，因此10线程速度基本不变
-            EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
+            // BaseMerger merger = MergerCatalog.Instance.FindSpecialNameMergers(MergeMethodName.TmrHiroMethod);
+
+            // EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
+            picPath = @"E:\game\gal_adv\Gカップシスターズ\unpack\png";
+            savePath = @"E:\game\gal_adv\Gカップシスターズ\unpack\cg";
+            offsetPath = @"E:\game\gal_adv\Gカップシスターズ\unpack\grd";
+            Tmr_Hiro_Merger merger = new Tmr_Hiro_Merger();
+            merger.SetInitializeParameter(picPath, savePath, offsetPath: offsetPath);
             List<TreeNode> nodes = merger.BuildTrees();
             CancellationTokenSource cs = new CancellationTokenSource();
             TreeScheduler pro = new TreeScheduler(nodes, (IMerge)merger, merger.GetDefaultOffseter(),

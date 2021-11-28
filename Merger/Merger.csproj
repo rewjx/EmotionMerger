@@ -8,9 +8,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Merger</RootNamespace>
     <AssemblyName>Merger</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicMerger.cs" />
     <Compile Include="core\BaseMerger.cs" />
     <Compile Include="core\BuildTreeHelper.cs" />
     <Compile Include="core\IGetOffset.cs" />
@@ -57,7 +59,10 @@
     <Compile Include="core\IMerge.cs" />
     <Compile Include="Escude\EscudeMerger.cs" />
     <Compile Include="Escude\LSFParser.cs" />
+    <Compile Include="MergerCatalog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tmr_Hiro\TmrGrdParser.cs" />
+    <Compile Include="Tmr_Hiro\Tmr_Hiro_Merger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -13,5 +13,7 @@ namespace Common
         public const string FixedOffsetName = "O_Fixed";
 
         public const string EscudeOffsetName = "O_Escude";
+
+        public const string TmrHiroOffsetName = "O_TmrHiro";
     }
 }

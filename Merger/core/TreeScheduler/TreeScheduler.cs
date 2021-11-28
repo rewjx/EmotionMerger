@@ -86,6 +86,10 @@ namespace Merger.core.TreeScheduler
             {
                 foreach (var item in node.DFSStepTree(false))
                 {
+                    if(item.Count == 1)
+                    {
+                        Console.WriteLine(item[0]);
+                    }
                     count += 1;
                 }
             }

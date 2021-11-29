@@ -15,7 +15,7 @@ namespace Merger.core
         /// <summary>
         /// 指定读取图像文件的方法
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">不包含路径及扩展名的纯名字</param>
         /// <returns></returns>
         Bitmap ReadImage(string fileName);
 

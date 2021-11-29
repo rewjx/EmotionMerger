@@ -13,43 +13,29 @@ using System.ComponentModel.Composition;
 namespace Merger.Tmr_Hiro
 {
     [Export(typeof(BaseMerger))]
-    public class Tmr_Hiro_Merger:BasicMerger
+    public class TmrHiroMerger:BasicMerger
     {
 
 
         public override string MethodName { get { return MergeMethodName.TmrHiroMethod; } }
 
-        /// <summary>
-        /// 包含偏移信息的文件路径
-        /// </summary>
-        private string OffsetFilePath;
-
         private Dictionary<string, Tuple<int, int>> offsets;
 
-        public Tmr_Hiro_Merger()
+        public TmrHiroMerger()
         {
             IsInitialize = false;
         }
 
-        public override void SetInitializeParameter(string picpath, string savePath,
-            string saveFormat = "PNG", string offsetPath = null)
+        public override bool SetInitializeParameter(string picpath, string savePath,
+            string offsetPath = null, string infoPath = null, string picFormat = null,
+            string saveFormat = null)
         {
-            base.SetInitializeParameter(picpath, savePath, saveFormat, offsetPath);
+            bool rtn = base.SetInitializeParameter(picpath, savePath, offsetPath, infoPath, picFormat, saveFormat);
             if (string.IsNullOrWhiteSpace(offsetPath))
             {
-                this.OffsetFilePath = picpath;
+                this.OffsetPath = picpath;
             }
-            else
-            {
-                this.OffsetFilePath = offsetPath;
-            }
-            picFormat = "png";
-        }
-
-        public override Bitmap ReadImage(string name)
-        {
-            string fullPath = Path.Combine(picPath, name + "." + picFormat);
-            return ImageIO.ReadImage(fullPath);
+            return rtn;
         }
 
         public void AddInList(ref List<List<string>> gs, string item, int idx)
@@ -61,9 +47,10 @@ namespace Merger.Tmr_Hiro
             gs[idx].Add(item);
         }
 
+
         public Dictionary<string, List<List<string>>> ReadPicturesForBuild()
         {
-            DirectoryInfo dir = new DirectoryInfo(picPath);
+            DirectoryInfo dir = new DirectoryInfo(this.PicPath);
             offsets = new Dictionary<string, Tuple<int, int>>();
             FileInfo[] files = dir.GetFiles("*.png");
             List<FileInfo> sortFiles = files.OrderBy(x => x.Name).ToList();
@@ -75,7 +62,7 @@ namespace Merger.Tmr_Hiro
             foreach (FileInfo file in sortFiles)
             {
                 string pureName = Path.GetFileNameWithoutExtension(file.Name);
-                string grdName = Path.Combine(OffsetFilePath, pureName + ".grd");
+                string grdName = Path.Combine(OffsetPath, pureName + ".grd");
                 string[] parts = pureName.Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
                 int gid = int.Parse(parts[0]);
                 int innerIdx = int.Parse(parts[3]);
@@ -115,10 +102,10 @@ namespace Merger.Tmr_Hiro
             return picGroups;
         }
 
-        public override List<TreeNode> BuildTrees(List<List<string>> picGroups = null)
+        public override List<TreeNode> BuildTreesFromGroups(List<List<string>> picGroups = null)
         {
             if (picGroups != null)
-                return base.BuildTrees(picGroups);
+                return base.BuildTreesFromGroups(picGroups);
             Dictionary<string, List<List<string>>> cgGroups = ReadPicturesForBuild();
             List<TreeNode> nodes = new List<TreeNode>();
             foreach (var k in cgGroups.Keys)

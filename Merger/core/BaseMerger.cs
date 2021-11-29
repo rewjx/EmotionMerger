@@ -12,7 +12,40 @@ namespace Merger.core
     /// </summary>
     public abstract class BaseMerger : IMerge
     {
+        /// <summary>
+        /// 方法名
+        /// </summary>
         public abstract string MethodName { get; }
+
+        /// <summary>
+        /// 待合成图片路径
+        /// </summary>
+        public abstract string PicPath { get; protected set; }
+
+        /// <summary>
+        /// 合成后图片保存路径
+        /// </summary>
+        public abstract string SavePath { get; protected set; }
+
+        /// <summary>
+        /// 包含图片偏移位置信息的文件路径
+        /// </summary>
+        public abstract string OffsetPath { get; protected set; }
+
+        /// <summary>
+        /// 其他所需信息，如cg表等文件路径
+        /// </summary>
+        public abstract string InfoPath { get; protected set; }
+
+        /// <summary>
+        /// 合成后图片保存格式,需唯一标识，对应ImageFormat的tag
+        /// </summary>
+        public abstract string SaveFormat { get; protected set; }
+
+        /// <summary>
+        /// 待合成的图片格式，需唯一标识，对应ImageFormat的tag
+        /// </summary>
+        public abstract string PictureFormat { get; protected set; }
 
         public abstract Bitmap MergeProcess(ref Bitmap mainImg, ref Bitmap subImg, Tuple<int, int> offset);
         public abstract void PostProcess(ref Bitmap Image);
@@ -62,6 +95,20 @@ namespace Merger.core
         /// </summary>
         /// <returns></returns>
         public abstract IGetOffset GetOffseter();
+
+        /// <summary>
+        ///  设置图片路径，保存路径，包含偏移信息文件的路径，其他信息(如cg表立绘表等文件)的路径，
+        ///  以及待读取的图片格式，图片保存格式等参数。
+        /// </summary>
+        /// <param name="picpath"></param>
+        /// <param name="savePath"></param>
+        /// <param name="offsetPath"></param>
+        /// <param name="infoPath"></param>
+        /// <param name="picFormat"></param>
+        /// <param name="saveFormat"></param>
+        public abstract bool SetInitializeParameter(string picpath, string savePath,
+            string offsetPath = null, string infoPath = null, string picFormat = null,
+            string saveFormat = null);
 
     }
 

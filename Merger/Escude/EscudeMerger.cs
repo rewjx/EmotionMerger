@@ -17,11 +17,6 @@ namespace Merger.Escude
     {
         public override string MethodName { get { return MergeMethodName.EscudeMethod; } }
 
-        /// <summary>
-        /// 包含偏移信息的文件路径
-        /// </summary>
-        private string OffsetFilePath;
-
         private Dictionary<string, Tuple<int, int>> offsets;
 
         public EscudeMerger()
@@ -29,32 +24,22 @@ namespace Merger.Escude
 
         }
 
-        public EscudeMerger(string picpath, string offsetPath, string savePath, string saveFormat = ImageNames.PNG)
-            :base(picpath, savePath, saveFormat)
+        public override bool SetInitializeParameter(string picpath, string savePath,
+            string offsetPath = null, string infoPath = null, string picFormat = null,
+            string saveFormat = null)
         {
-            this.OffsetFilePath = offsetPath;
-            picFormat = "png";
-        }
-
-        public override void SetInitializeParameter(string picpath, string savePath,
-            string saveFormat = "PNG", string offsetPath = null)
-        {
-            base.SetInitializeParameter(picpath, savePath, saveFormat, offsetPath);
+            bool rtn = base.SetInitializeParameter(picpath, savePath, offsetPath, infoPath, picFormat, saveFormat);
             if(string.IsNullOrWhiteSpace(offsetPath))
             {
-                this.OffsetFilePath = picpath;
+                this.OffsetPath = picpath;
             }
-            else
-            {
-                this.OffsetFilePath = offsetPath;
-            }
-            picFormat = "png";
+            return rtn;
         }
 
         private HashSet<string> GetAllFileName()
         {
             HashSet<string> fileNames = new HashSet<string>();
-            DirectoryInfo dir = new DirectoryInfo(picPath);
+            DirectoryInfo dir = new DirectoryInfo(this.PicPath);
             foreach (FileInfo item in dir.GetFiles())
             {
                 fileNames.Add(Path.GetFileNameWithoutExtension(item.Name));
@@ -62,15 +47,10 @@ namespace Merger.Escude
             return fileNames;
         }
 
-        public override Bitmap ReadImage(string name)
-        {
-            string fullPath = Path.Combine(picPath, name + "." + picFormat);
-            return ImageIO.ReadImage(fullPath);
-        }
 
-        public override List<TreeNode> BuildTrees(List<List<string>> picGroups = null)
+        public override List<TreeNode> BuildTreesFromGroups(List<List<string>> picGroups = null)
         {
-            DirectoryInfo dir = new DirectoryInfo(OffsetFilePath);
+            DirectoryInfo dir = new DirectoryInfo(OffsetPath);
             List<TreeNode> nodes = new List<TreeNode>();
             offsets = new Dictionary<string, Tuple<int, int>>();
             HashSet<string> allFileNames = GetAllFileName();

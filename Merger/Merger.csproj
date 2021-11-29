@@ -61,8 +61,9 @@
     <Compile Include="Escude\LSFParser.cs" />
     <Compile Include="MergerCatalog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tmr_Hiro\TmrBinTextReader.cs" />
     <Compile Include="Tmr_Hiro\TmrGrdParser.cs" />
-    <Compile Include="Tmr_Hiro\Tmr_Hiro_Merger.cs" />
+    <Compile Include="Tmr_Hiro\TmrHiroMerger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -71,6 +72,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{561f8aa3-2947-469c-a74e-0d4091ced271}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageFormat\ImageFormat.csproj">
+      <Project>{4e28c3c1-224d-49c2-9955-10142f09c90e}</Project>
+      <Name>ImageFormat</Name>
     </ProjectReference>
     <ProjectReference Include="..\ImageOP\ImageOP.csproj">
       <Project>{a88e5809-97cf-4479-83a4-04e3c841ea25}</Project>

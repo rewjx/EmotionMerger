@@ -9,7 +9,7 @@ using ImageOP;
 using Merger.core;
 using System.IO;
 using Common;
-
+using ImageFormat;
 
 namespace Merger
 {
@@ -22,27 +22,24 @@ namespace Merger
     {
         public override string MethodName { get { return MergeMethodName.BasicMethod; } }
 
+        public override string PicPath { get; protected set; }
+
+        public override string SavePath { get; protected set; }
+
+        public override string OffsetPath { get; protected set; }
+
+        public override string InfoPath { get; protected set; }
+
+        public override string SaveFormat { get; protected set; }
+
+        public override string PictureFormat { get; protected set; }
+
+        /// <summary>
+        /// 待合成图片的图像文件扩展名
+        /// </summary>
+        public virtual string PictureExtension { get; protected set; }
+
         protected IGetOffset offsetCalcer = null;
-
-        /// <summary>
-        /// 待合成图片的文件夹路径
-        /// </summary>
-        protected string picPath;
-
-        /// <summary>
-        /// 图像格式
-        /// </summary>
-        protected string picFormat;
-
-        /// <summary>
-        /// 合成后保存路径
-        /// </summary>
-        protected string savePath;
-
-        /// <summary>
-        /// 合成后保存图片格式
-        /// </summary>
-        protected string saveFormat;
 
         /// <summary>
         /// 存储图片合成森林的根节点
@@ -55,28 +52,48 @@ namespace Merger
         protected List<PicRuleItem> picRules = null;
 
         protected bool IsInitialize { get; set; }
+
         public BasicMerger()
         {
             IsInitialize = false;
         }
 
-        public BasicMerger(string picpath, string savePath, string saveFormat = ImageNames.PNG)
+        public override bool SetInitializeParameter(string picpath, string savePath,
+            string offsetPath = null, string infoPath = null, string picFormat = null,
+            string saveFormat = null)
         {
-            SetInitializeParameter(picpath, savePath, saveFormat);
+            this.PicPath = picpath;
+            this.SavePath = savePath;
+            this.OffsetPath = offsetPath;
+            this.InfoPath = infoPath;
+            if(picFormat == null)
+            {
+                picFormat = ImageIO.AutoFindPictureFormat(picpath);
+            }
+            if(saveFormat == null)
+            {
+                saveFormat = ImageNames.PNG;
+            }
+            this.PictureFormat = picFormat;
+            this.SaveFormat = saveFormat;
+            if (this.PictureFormat == null)
+            {
+                PictureExtension = null;
+                return false;
+            }
+            PictureExtension = ImageFormatCatalog.Instance.GetExtensionsByTag(PictureFormat);
+            IsInitialize = true;
+            return true;
         }
 
-        public virtual void  SetInitializeParameter(string picpath, string savePath,
-            string saveFormat = ImageNames.PNG, string offsetPath=null)
-        {
-            this.picPath = picpath;
-            this.savePath = savePath;
-            this.saveFormat = saveFormat;
-            IsInitialize = true;
-        }
 
         public override Bitmap ReadImage(string name)
         {
-            string fullPath = Path.Combine(this.picPath, name);
+            string fullPath = name;
+            if (File.Exists(fullPath) == false)
+            {
+                fullPath = Path.Combine(this.PicPath, name +"." + PictureExtension);
+            }
             Bitmap img = ImageIO.ReadImage(fullPath);
             return img;
         }
@@ -101,13 +118,12 @@ namespace Merger
         {
             if (img == null)
                 return true;
-            string fullName = saveName + "." + saveFormat;
-            string fullPath = Path.Combine(savePath, fullName);
-            return ImageIO.SaveImage(img, fullPath, saveFormat);
+            string fullPath = Path.Combine(this.SavePath, saveName);
+            return ImageIO.SaveImage(img, fullPath, this.SaveFormat);
 
         }
 
-        public virtual List<TreeNode> BuildTrees(List<List<string>> picGroups = null)
+        public virtual List<TreeNode> BuildTreesFromGroups(List<List<string>> picGroups = null)
         {
             BuildTreeHelper helper = new BuildTreeHelper();
             picNodes =  helper.BuildTrees(picGroups, new HashSet<int>());
@@ -165,7 +181,7 @@ namespace Merger
         {
             if (groups == null || groups.Count == 0)
                 return;
-            List<TreeNode> newNodes = BuildTrees(groups);
+            List<TreeNode> newNodes = BuildTreesFromGroups(groups);
             if(newNodes != null)
             {
                 picNodes = newNodes;

@@ -54,5 +54,17 @@ namespace Merger
                 return null;
             return rtn[0];
         }
+
+        public List<string> GetAllMethodName()
+        {
+            if (mergers == null)
+                return null;
+            List<string> rtn = new List<string>();
+            foreach (var m in mergers)
+            {
+                rtn.Add(m.MethodName);
+            }
+            return rtn;
+        }
     }
 }

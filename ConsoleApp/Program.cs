@@ -29,9 +29,28 @@ namespace ConsoleApp
             Console.WriteLine("参数-m: 图片合成方法(不同引擎往往需要采用不同的合成方式，请正确选择合成方法)");
             Console.WriteLine("参数-p(可选,与-m参数有关): 除图片外，图片合成所需的必要文件路径(如偏移信息文件,合成表文件)");
             Console.WriteLine("参数-t(可选): 使用的线程数量)");
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("帮助相关:");
+            Console.WriteLine("参数-lm: 查看支持的引擎或方法名，用于-m参数");
+        }
+
+        static void PrintMethodNames()
+        {
+            List<string> names = MergerCatalog.Instance.GetAllMethodName();
+            foreach (var item in names)
+            {
+                Console.WriteLine(item);
+            }
         }
         static bool Process(CmdParser parser)
         {
+            bool isPrintMethod = parser.Has("-lm");
+            if(isPrintMethod)
+            {
+                PrintMethodNames();
+                return true;
+            }
+                
             bool hasPicPath = parser.Has("-i");
             if (hasPicPath == false)
                 return false;
@@ -58,18 +77,15 @@ namespace ConsoleApp
                     threadNum = 5;
                 }
             }
-            //TODO: 需要根据方法名自动实例化对应的IMerge(if语句？ 还是使用Composition)
 
             //1610张图片，3.5GB，3线程节能大约100s，5线程平衡大约50s，平衡模式5线程基本占满cpu，因此10线程速度基本不变
             // BaseMerger merger = MergerCatalog.Instance.FindSpecialNameMergers(MergeMethodName.TmrHiroMethod);
 
             // EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
-            picPath = @"E:\game\gal_adv\Gカップシスターズ\unpack\png";
-            savePath = @"E:\game\gal_adv\Gカップシスターズ\unpack\cg";
-            offsetPath = @"E:\game\gal_adv\Gカップシスターズ\unpack\grd";
-            Tmr_Hiro_Merger merger = new Tmr_Hiro_Merger();
-            merger.SetInitializeParameter(picPath, savePath, offsetPath: offsetPath);
-            List<TreeNode> nodes = merger.BuildTrees();
+
+            BaseMerger merger = MergerCatalog.Instance.FindSpecialNameMergers(methodName);
+            merger.SetInitializeParameter(picPath, savePath, offsetPath);
+            List<TreeNode> nodes = merger.GetTreeNodes();
             CancellationTokenSource cs = new CancellationTokenSource();
             TreeScheduler pro = new TreeScheduler(nodes, (IMerge)merger, merger.GetDefaultOffseter(),
                 new Progress<int>(), cs.Token, maxTaskCount:threadNum);

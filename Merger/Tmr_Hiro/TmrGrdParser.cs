@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Merger.Tmr_Hiro
 {
-    class TmrGrdParser
+    internal class TmrGrdParser
     {
 
         public int Screen_Width { get; private set; }

@@ -17,4 +17,6 @@ namespace Common
 
         public const string BMP = "BMP";
     }
+
+
 }

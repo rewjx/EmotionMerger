@@ -10,9 +10,14 @@ namespace ImageFormat
     public abstract class BaseImageFormat
     {
         /// <summary>
-        /// file suffix
+        /// 图像格式tag，保证唯一，大多时候与扩展名一致
         /// </summary>
         public abstract string tag { get;  }
+
+        /// <summary>
+        /// 文件扩展名
+        /// </summary>
+        public abstract string extension { get; }
 
         /// <summary>
         /// which engines often use this image format

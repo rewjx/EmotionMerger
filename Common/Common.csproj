@@ -46,12 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinaryHelper.cs" />
     <Compile Include="EngineNames.cs" />
     <Compile Include="FileHelper.cs" />
     <Compile Include="ImageNames.cs" />
     <Compile Include="MergeMethodName.cs" />
     <Compile Include="OffsetMethodName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

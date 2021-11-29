@@ -44,6 +44,14 @@ namespace ImageFormat
             }
         }
 
+        public override string extension
+        {
+            get
+            {
+                return ImageNames.PNG;
+            }
+        }
+
         public override bool canWrite { get { return true; } }
 
         public override bool WriteImage(Bitmap pic, string path)
@@ -66,6 +74,14 @@ namespace ImageFormat
             }
         }
 
+        public override string extension
+        {
+            get
+            {
+                return ImageNames.JPG;
+            }
+        }
+
         public override bool canWrite { get { return true; } }
 
         public override bool WriteImage(Bitmap pic, string path)
@@ -81,6 +97,14 @@ namespace ImageFormat
     public class ImageBMP : ImageCommon
     {
         public override string tag
+        {
+            get
+            {
+                return ImageNames.BMP;
+            }
+        }
+
+        public override string extension
         {
             get
             {

@@ -48,10 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdvHD\AdvHdMerger.cs" />
+    <Compile Include="AdvHD\PnaParser.cs" />
     <Compile Include="BasicMerger.cs" />
     <Compile Include="core\BaseMerger.cs" />
+    <Compile Include="core\BuildRuleHelper.cs" />
     <Compile Include="core\BuildTreeHelper.cs" />
     <Compile Include="core\IGetOffset.cs" />
+    <Compile Include="core\RuleScheduler\RuleScheduler.cs" />
+    <Compile Include="core\RuleScheduler\RuleWorker.cs" />
     <Compile Include="core\TaskQueue.cs" />
     <Compile Include="core\TreeNode.cs" />
     <Compile Include="core\TreeScheduler\TreeScheduler.cs" />

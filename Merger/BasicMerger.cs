@@ -87,13 +87,14 @@ namespace Merger
         }
 
 
-        public override Bitmap ReadImage(string name)
+        public override Bitmap ReadImage(string name, bool isFullpath=false)
         {
             string fullPath = name;
-            if (File.Exists(fullPath) == false)
+            if (!isFullpath)
             {
-                fullPath = Path.Combine(this.PicPath, name +"." + PictureExtension);
+                fullPath = Path.Combine(this.PicPath, name);
             }
+            fullPath = fullPath + "." + PictureExtension;
             Bitmap img = ImageIO.ReadImage(fullPath);
             return img;
         }
@@ -114,11 +115,11 @@ namespace Merger
 
         }
 
-        public override bool SaveImage(ref Bitmap img, string saveName)
+        public override bool SaveImage(ref Bitmap img, string saveName, bool isFullpath=false)
         {
             if (img == null)
                 return true;
-            string fullPath = Path.Combine(this.SavePath, saveName);
+            string fullPath = isFullpath? saveName: Path.Combine(this.SavePath, saveName);
             return ImageIO.SaveImage(img, fullPath, this.SaveFormat);
 
         }
@@ -155,6 +156,8 @@ namespace Merger
 
         public override List<TreeNode> GetTreeNodes()
         {
+            if (this.picNodes == null)
+                picNodes = BuildTreesFromGroups();
             return this.picNodes;
         }
 

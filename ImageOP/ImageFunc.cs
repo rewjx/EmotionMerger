@@ -94,10 +94,12 @@ namespace ImageOP
                 ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
             BitmapData subData = subImg.LockBits(new Rectangle(0, 0, subImg.Width, subImg.Height),
                 ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            int sx = Math.Max(0, xoffset);
-            int sy = Math.Max(0, yoffset);
-            int validWidth = Math.Min(mainImg.Width - sx, subImg.Width);
-            int validHeight = Math.Min(mainImg.Height - sy, subImg.Height);
+            int mainsx = Math.Max(0, xoffset);
+            int mainsy = Math.Max(0, yoffset);
+            int subsx =  Math.Max(0, -xoffset);
+            int subsy =  Math.Max(0, -yoffset);
+            int validWidth = Math.Min(mainImg.Width - mainsx, subImg.Width - subsx);
+            int validHeight = Math.Min(mainImg.Height - mainsy, subImg.Height - subsy);
 
             unsafe
             {
@@ -105,7 +107,8 @@ namespace ImageOP
                 int* subPtr = (int*)(subData.Scan0);
 
                 //移动到重合部分的左上角
-                rtnPtr += (rtnData.Stride * sy + sx * 4) / 4;
+                rtnPtr += (rtnData.Stride * mainsy + mainsx * 4) / 4;
+                subPtr += (subData.Stride * subsy + subsx * 4) / 4;
                 for(int y=0; y<validHeight; y++)
                 {
                     for(int x=0; x<validWidth; x++)

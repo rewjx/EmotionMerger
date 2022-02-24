@@ -17,7 +17,7 @@ namespace Merger.core
         /// </summary>
         /// <param name="fileName">不包含路径及扩展名的纯名字</param>
         /// <returns></returns>
-        Bitmap ReadImage(string fileName);
+        Bitmap ReadImage(string fileName, bool isFullpath = false);
 
         /// <summary>
         /// 读取文件后，执行合成前，进行图像的预处理操作
@@ -47,7 +47,7 @@ namespace Merger.core
         /// <param name="img"></param>
         /// <param name="saveName"></param>
         /// <returns></returns>
-        bool SaveImage(ref Bitmap img, string saveName);
+        bool SaveImage(ref Bitmap img, string saveName, bool isFullpath = false);
 
     }
 }

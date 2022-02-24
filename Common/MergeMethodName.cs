@@ -13,5 +13,7 @@ namespace Common
         public const string EscudeMethod = "M_Escude";
 
         public const string TmrHiroMethod = "M_TmrHiro";
+
+        public const string AdvHDMethod = "M_AdvHD";
     }
 }

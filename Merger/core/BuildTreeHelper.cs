@@ -15,7 +15,7 @@ namespace Merger.core
         /// </summary>
         /// <param name="picGroups">不同索引的List为不同组，索引为0的组代表该组合成时在最下方，索引越大，代表对应组越靠后合成</param>
         /// <param name="ignoreGIdx">存储可忽略的图片组在picGroups中的下标</param>
-        /// <param name="idx"></param>
+        /// <param name="idx">从picGroups[idx]开始</param>
         /// <param name="mainName"></param>
         /// <returns></returns>
         public virtual List<TreeNode> BuildTrees(List<List<string>> picGroups, HashSet<int>ignoreGIdx, int idx=0, string mainName=null)

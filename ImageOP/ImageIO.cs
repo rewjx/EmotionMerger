@@ -144,6 +144,10 @@ namespace ImageOP
                 foreach (FileInfo item in dir.GetFiles())
                 {
                     string ext = item.Extension.ToLower();
+                    if(!string.IsNullOrEmpty(ext) && ext.StartsWith("."))
+                    {
+                        ext = ext.Substring(1);
+                    }
                     if (allExts.Contains(ext))
                     {
                         if(counts.ContainsKey(ext))
@@ -157,6 +161,8 @@ namespace ImageOP
                         }
                     }
                 }
+                if (counts.Count == 0)
+                    return null;
                 int maxCount = counts.Values.Max();
                 var maxExts = counts.Where(item => item.Value == maxCount).ToList();
                 foreach (var item in maxExts)

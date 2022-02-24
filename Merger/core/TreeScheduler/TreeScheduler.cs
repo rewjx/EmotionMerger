@@ -102,7 +102,9 @@ namespace Merger.core.TreeScheduler
             lock(enQueueLocker)
             {
                 if (curTaskIdx >= taskRoots.Count)
+                {
                     return;
+                }
                 while (curTaskIdx < taskRoots.Count)
                 {
                     TreeNode node = taskRoots[curTaskIdx];
@@ -122,10 +124,10 @@ namespace Merger.core.TreeScheduler
 
         public async Task Run()
         {
-            if (isRunning)
+            if (isRunning || taskRoots == null || taskRoots.Count == 0)
+            {
                 return;
-            if (taskRoots == null || taskRoots.Count == 0)
-                return;
+            }
             isRunning = true;
             TreeWorker[] workers = new TreeWorker[maxTaskCount];
             Task[] tasks = new Task[maxTaskCount];

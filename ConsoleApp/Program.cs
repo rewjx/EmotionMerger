@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Diagnostics;
 using Common;
 using Merger.Tmr_Hiro;
+using Merger.AdvHD;
 
 namespace ConsoleApp
 {
@@ -79,15 +80,20 @@ namespace ConsoleApp
             }
 
             //1610张图片，3.5GB，3线程节能大约100s，5线程平衡大约50s，平衡模式5线程基本占满cpu，因此10线程速度基本不变
-            // BaseMerger merger = MergerCatalog.Instance.FindSpecialNameMergers(MergeMethodName.TmrHiroMethod);
+            //BaseMerger merger = MergerCatalog.Instance.FindSpecialNameMergers(MergeMethodName.TmrHiroMethod);
 
-            // EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
+            //EscudeMerger merger = new EscudeMerger(picPath, offsetPath, savePath);
 
             BaseMerger merger = MergerCatalog.Instance.FindSpecialNameMergers(methodName);
+            if(merger == null)
+            {
+                Console.Write("没有对应方法的合成器,请检查-m参数是否有误");
+                return false;
+            }
             merger.SetInitializeParameter(picPath, savePath, offsetPath);
             List<TreeNode> nodes = merger.GetTreeNodes();
             CancellationTokenSource cs = new CancellationTokenSource();
-            TreeScheduler pro = new TreeScheduler(nodes, (IMerge)merger, merger.GetDefaultOffseter(),
+            TreeScheduler pro = new TreeScheduler(nodes, (IMerge)merger, merger.GetOffseter(),
                 new Progress<int>(), cs.Token, maxTaskCount:threadNum);
             Console.WriteLine("total picture count: " + pro.GetProbTotalCount());
             Stopwatch s = new Stopwatch();

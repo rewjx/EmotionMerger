@@ -50,8 +50,8 @@ namespace Merger.core
         public abstract Bitmap MergeProcess(ref Bitmap mainImg, ref Bitmap subImg, Tuple<int, int> offset);
         public abstract void PostProcess(ref Bitmap Image);
         public abstract void PreProcessImage(ref Bitmap image);
-        public abstract Bitmap ReadImage(string fileName);
-        public abstract bool SaveImage(ref Bitmap img, string saveName);
+        public abstract Bitmap ReadImage(string fileName, bool isFullpath = false);
+        public abstract bool SaveImage(ref Bitmap img, string saveName, bool isFullpath = false);
 
         /// <summary>
         /// 获取图片合成树状依赖
@@ -116,9 +116,14 @@ namespace Merger.core
     public class PicRuleItem
     {
         /// <summary>
-        /// 合成一张图片所需的全部图片名
+        /// 合成一张图片所需的全部图片名,注意不包括扩展名
         /// </summary>
         public List<string> PicRules { get; set; }
+
+        /// <summary>
+        /// 图片组的路径
+        /// </summary>
+        public string PicPath { get; set; }
 
         /// <summary>
         /// 合成后图片保存名字
@@ -128,10 +133,11 @@ namespace Merger.core
 
         public PicRuleItem() { }
 
-        public PicRuleItem(List<string> picnames, string savename)
+        public PicRuleItem(List<string> picnames, string savename, string picpath=null)
         {
             this.PicRules = picnames;
             this.SaveName = savename;
+            this.PicPath = picpath;
         }
     }
 

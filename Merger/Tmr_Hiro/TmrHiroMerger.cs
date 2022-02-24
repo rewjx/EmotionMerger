@@ -47,7 +47,7 @@ namespace Merger.Tmr_Hiro
             gs[idx].Add(item);
         }
 
-
+       
         public Dictionary<string, List<List<string>>> ReadPicturesForBuild()
         {
             DirectoryInfo dir = new DirectoryInfo(this.PicPath);
